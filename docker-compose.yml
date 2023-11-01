@@ -1,0 +1,61 @@
+version: "3.8"
+
+services:
+  task:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      RABBITMQ_USER: guest
+      RABBITMQ_PASSWORD: guest
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_PORT: 5672
+    volumes:
+      - ./app:/code/app
+      - ./tasks:/code/tasks
+    stdin_open: true
+    tty: true
+    ports:
+      - "8000:8000"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    command:
+      - uvicorn
+      - app.main:app
+      - --host
+      - 0.0.0.0
+      - --port
+      - "8000"
+      - --reload
+
+  dramatiq-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/code/app
+      - ./tasks:/code/tasks
+    command: dramatiq tasks.main
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+
+  rabbitmq:
+    image: "rabbitmq:management"
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  rabbitmq-data:
