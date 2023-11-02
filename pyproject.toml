@@ -10,6 +10,7 @@ python = "^3.11"
 fastapi = {extras = ["all"], version = "^0.104.1"}
 dramatiq = {extras = ["all"], version = "^1.15.0"}
 httpx = "^0.25.0"
+ipython = "^8.17.2"
 
 
 [tool.poetry.group.dev.dependencies]
