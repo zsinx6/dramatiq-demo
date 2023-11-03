@@ -1,15 +1,10 @@
 version: "3.8"
 
 services:
-  task:
+  api:
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      RABBITMQ_USER: guest
-      RABBITMQ_PASSWORD: guest
-      RABBITMQ_HOST: rabbitmq
-      RABBITMQ_PORT: 5672
     volumes:
       - ./app:/code/app
       - ./tasks:/code/tasks
